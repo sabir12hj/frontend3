@@ -15,7 +15,7 @@ const TournamentDetail = () => {
     return <div>Invalid tournament ID</div>;
   }
   
-  const tournamentId = parseInt(id);
+  const tournamentId = parseInt(id, 10);
   if (isNaN(tournamentId)) {
     return <div>Invalid tournament ID format</div>;
   }
@@ -28,15 +28,20 @@ const TournamentDetail = () => {
     staleTime: 30000, // 30 seconds
   });
 
+  interface TournamentParticipant {
+    userId: number;
+    paymentStatus: string;
+  }
+
   // Fetch participants
-  const { data: participants } = useQuery({
+  const { data: participants = [] } = useQuery<TournamentParticipant[]>({
     queryKey: [`/api/tournaments/${tournamentId}/participants`],
     staleTime: 30000,
     enabled: !!tournamentId,
   });
 
   // Check if user has joined this tournament
-  const hasJoined = participants?.some((participant: any) => 
+  const hasJoined = participants.some((participant) => 
     participant.userId === user?.id && participant.paymentStatus === "completed"
   );
 
@@ -139,11 +144,11 @@ const TournamentDetail = () => {
               </div>
               {isEnded ? (
                 <span className="text-lg font-bold">
-                  {formatDateTime(tournament.endTime)}
+                  {formatDateTime(tournament.endTime.toString())}
                 </span>
               ) : (
                 <Countdown
-                  targetDate={new Date(isLive ? tournament.endTime : tournament.startTime)}
+                  targetDate={isLive ? tournament.endTime : tournament.startTime}
                   type={isLive ? "warning" : "normal"}
                   size="lg"
                 />
@@ -173,11 +178,11 @@ const TournamentDetail = () => {
                 </li>
                 <li className="flex justify-between">
                   <span className="text-gray-600">Start Time:</span>
-                  <span className="font-medium">{formatDateTime(tournament.startTime)}</span>
+                  <span className="font-medium">{formatDateTime(tournament.startTime.toString())}</span>
                 </li>
                 <li className="flex justify-between">
                   <span className="text-gray-600">End Time:</span>
-                  <span className="font-medium">{formatDateTime(tournament.endTime)}</span>
+                  <span className="font-medium">{formatDateTime(tournament.endTime.toString())}</span>
                 </li>
                 <li className="flex justify-between">
                   <span className="text-gray-600">Status:</span>

@@ -5,6 +5,7 @@ import TournamentCard from "@/components/TournamentCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Tournament } from "@/types";
 
 const Tournaments = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,13 +23,13 @@ const Tournaments = () => {
   });
 
   // Get upcoming tournaments
-  const { data: upcomingTournaments, isLoading: isLoadingUpcoming } = useQuery({
+  const { data: upcomingTournaments = [], isLoading: isLoadingUpcoming } = useQuery<Tournament[]>({
     queryKey: ["/api/tournaments/upcoming"],
     staleTime: 60000, // 1 minute
   });
 
   // Filter tournaments based on search term
-  const filterTournaments = (tournaments: any[] | undefined) => {
+  const filterTournaments = (tournaments: Tournament[] | undefined) => {
     if (!tournaments) return [];
     if (!searchTerm) return tournaments;
     
@@ -39,13 +40,13 @@ const Tournaments = () => {
   };
 
   // Get participants count (mock data, should come from API)
-  const getParticipantsCount = (tournament: any) => {
+  const getParticipantsCount = (tournament: Tournament) => {
     // This is a placeholder. In a real app, this data would come from the API
     return Math.floor(Math.random() * tournament.totalSlots);
   };
 
   // Render tournament cards
-  const renderTournamentCards = (tournaments: any[] | undefined, isLive: boolean = false, isLoading: boolean = false) => {
+  const renderTournamentCards = (tournaments: Tournament[] | undefined, isLive: boolean = false, isLoading: boolean = false) => {
     if (isLoading) {
       return Array.from({ length: 6 }).map((_, index) => (
         <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">

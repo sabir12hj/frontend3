@@ -5,16 +5,17 @@ import HowItWorks from "@/components/HowItWorks";
 import RecentWinners from "@/components/RecentWinners";
 import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tournament } from "@/types";
 
 const Home = () => {
   // Get live tournaments
-  const { data: liveTournaments, isLoading: isLoadingLive } = useQuery({
+  const { data: liveTournaments = [], isLoading: isLoadingLive } = useQuery<Tournament[]>({
     queryKey: ["/api/tournaments/live"],
     staleTime: 60000, // 1 minute
   });
 
   // Get upcoming tournaments
-  const { data: upcomingTournaments, isLoading: isLoadingUpcoming } = useQuery({
+  const { data: upcomingTournaments = [], isLoading: isLoadingUpcoming } = useQuery<Tournament[]>({
     queryKey: ["/api/tournaments/upcoming"],
     staleTime: 60000, // 1 minute
   });
@@ -57,8 +58,8 @@ const Home = () => {
                 </div>
               </div>
             ))
-          ) : liveTournaments && liveTournaments.length > 0 ? (
-            liveTournaments.slice(0, 3).map((tournament: any) => (
+          ) : liveTournaments.length > 0 ? (
+            liveTournaments.slice(0, 3).map((tournament) => (
               <TournamentCard
                 key={tournament.id}
                 tournament={tournament}
@@ -108,8 +109,8 @@ const Home = () => {
                 </div>
               </div>
             ))
-          ) : upcomingTournaments && upcomingTournaments.length > 0 ? (
-            upcomingTournaments.slice(0, 3).map((tournament: any) => (
+          ) : upcomingTournaments.length > 0 ? (
+            upcomingTournaments.slice(0, 3).map((tournament) => (
               <TournamentCard
                 key={tournament.id}
                 tournament={tournament}

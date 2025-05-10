@@ -36,32 +36,36 @@ const TournamentPayment = () => {
   }, [requireAuth, tournamentId]);
 
   // Fetch tournament details
-  const { data: tournament, isLoading: isLoadingTournament } = useQuery({
+  const { data: tournament = {} as Tournament, isLoading: isLoadingTournament } = useQuery<Tournament>({
     queryKey: [`/api/tournaments/${tournamentId}`],
     staleTime: 30000, // 30 seconds
   });
 
+  interface WalletData {
+    wallet: string;
+  }
+
   // Fetch user's wallet balance
-  const { data: walletData } = useQuery({
+  const { data: walletData = {} as WalletData } = useQuery<WalletData>({
     queryKey: ["/api/wallet"],
     staleTime: 30000,
     enabled: !!user,
   });
 
   // Check if tournament is valid for payment
-  const isValidTournament = tournament && (
+  const isValidTournament = tournament?.startTime && (
     new Date(tournament.startTime) > new Date() || // Upcoming tournament
     (new Date(tournament.startTime) <= new Date() && new Date(tournament.endTime) >= new Date()) // Live tournament
   );
 
   // Check if user has enough balance for wallet payment
-  const hasEnoughBalance = user && walletData && 
-    parseFloat(walletData.wallet) >= (tournament ? parseFloat(tournament.entryFee) : 0);
+  const hasEnoughBalance = user && walletData?.wallet && tournament?.entryFee && 
+    parseFloat(walletData.wallet) >= parseFloat(tournament.entryFee);
 
   // Format date and time
-  const formatDateTime = (dateString: string) => {
-    if (!dateString) return "";
-    return format(new Date(dateString), "PPP 'at' p");
+  const formatDateTime = (date: Date) => {
+    if (!date) return "";
+    return format(new Date(date), "PPP 'at' p");
   };
 
   // Handle payment
@@ -130,7 +134,7 @@ const TournamentPayment = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Date:</span>
-                <span className="font-medium">{formatDateTime(tournament.startTime)}</span>
+                <span className="font-medium">{tournament.startTime ? formatDateTime(tournament.startTime) : ''}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Questions:</span>

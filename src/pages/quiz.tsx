@@ -1,6 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@  // Start the quiz
+  const startQuiz = () => {
+    if (!quizData?.questions?.length) {
+      setQuizState((prev) => ({ ...prev, status: "error" }));
+      return;
+    }
+
+    setQuizState((prev) => ({
+      ...prev,
+      status: "question",
+      currentQuestionIndex: 0,
+      selectedAnswer: null,
+      timeLeft: quizData.questions[0].timer,
+      score: 0,
+      userResponses: [],
+    }));uery";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -11,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 
 // Keeps track of quiz state
-import { Quiz, QuizQuestion } from '@/types';
+import type { Quiz, QuizQuestion } from '@/types';
 
 interface QuizState {
   status: "loading" | "ready" | "question" | "completed" | "error";
@@ -67,12 +82,22 @@ const Quiz = () => {
   }, [requireAuth, tournamentId]);
 
   // Fetch quiz data
-  const { data: quizData, isLoading: isLoadingQuiz, error: quizError } = useQuery({
+  const { data: quizData = {} as Quiz, isLoading: isLoadingQuiz, error: quizError } = useQuery<Quiz>({
     queryKey: [`/api/tournaments/${tournamentId}/start-quiz`],
     staleTime: 0, // Always fetch fresh data
     retry: false,
     enabled: !!user,
   });
+
+  // Type guard to check if quiz has valid questions
+  const hasValidQuestions = (quiz: Quiz | undefined): quiz is Quiz & { questions: QuizQuestion[] } => {
+    return !!quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0;
+  };
+
+  // Type guard to check if quiz has valid questions
+  const hasValidQuestions = (quiz: Quiz | undefined): quiz is Quiz & { questions: QuizQuestion[] } => {
+    return !!quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0;
+  };
 
   // Set up timer
   useEffect(() => {
@@ -107,23 +132,21 @@ const Quiz = () => {
       return;
     }
 
-    if (quizData) {
-      // Set initial question and timer
-      if (quizData.questions && quizData.questions.length > 0) {
-        setQuizState((prev) => ({
-          ...prev,
-          status: "ready",
-          timeLeft: quizData.questions[0].timer,
-        }));
-      } else {
-        setQuizState((prev) => ({ ...prev, status: "error" }));
-      }
+    // Set initial question and timer
+    if (hasValidQuestions(quizData)) {
+      setQuizState((prev) => ({
+        ...prev,
+        status: "ready",
+        timeLeft: quizData.questions[0].timer,
+      }));
+    } else {
+      setQuizState((prev) => ({ ...prev, status: "error" }));
     }
   }, [quizData, isLoadingQuiz, quizError]);
 
   // Start the quiz
   const startQuiz = () => {
-    if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+    if (!hasValidQuestions(quizData)) {
       setQuizState((prev) => ({ ...prev, status: "error" }));
       return;
     }
@@ -143,16 +166,15 @@ const Quiz = () => {
   const submitAnswer = async () => {
     if (
       quizState.status !== "question" ||
-      !quizData ||
-      !quizData.questions ||
+      !quizData?.questions?.length ||
       quizState.currentQuestionIndex >= quizData.questions.length
     ) {
       return;
     }
 
     const currentQuestion = quizData.questions[quizState.currentQuestionIndex];
-    const answerIndex = quizState.selectedAnswer !== null ? quizState.selectedAnswer : -1; // -1 for no answer
-    const timeTaken = currentQuestion.timer - quizState.timeLeft;
+    const answerIndex = quizState.selectedAnswer ?? -1; // -1 for no answer
+    const timeTaken = (currentQuestion?.timer ?? 30) - quizState.timeLeft;
 
     try {
       // Record the user's response
@@ -243,12 +265,7 @@ const Quiz = () => {
 
   // Calculate progress
   const calculateProgress = () => {
-    if (
-      quizState.status !== "question" ||
-      !quizData ||
-      !quizData.questions ||
-      quizData.questions.length === 0
-    ) {
+    if (quizState.status !== "question" || !quizData?.questions?.length) {
       return 0;
     }
 
@@ -398,9 +415,9 @@ const Quiz = () => {
         <div className="bg-secondary p-4 text-white rounded-t-lg">
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-lg">
-              {quizData?.quiz?.title || "Quiz Tournament"}
+              {quizData?.title || "Quiz Tournament"}
             </h2>
-            {quizState.status === "question" && quizData && quizData.questions && (
+            {quizState.status === "question" && quizData?.questions?.length && (
               <div className="text-white font-accent font-bold text-xl">
                 Q <span>{quizState.currentQuestionIndex + 1}</span>/
                 <span>{quizData.questions.length}</span>
