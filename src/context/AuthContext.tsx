@@ -24,6 +24,7 @@ export const AuthContext = createContext<AuthContextType>({
   register: async () => false,
   googleLogin: async () => false,
   logout: () => {},
+  requireAuth: () => {},
 });
 
 interface AuthProviderProps {
@@ -170,6 +171,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
   };
 
+  const requireAuth = (redirectTo = "/") => {
+    if (!user) {
+      window.location.href = `/auth?redirectTo=${encodeURIComponent(redirectTo)}`;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -181,6 +188,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         register,
         googleLogin,
         logout,
+        requireAuth,
       }}
     >
       {children}
