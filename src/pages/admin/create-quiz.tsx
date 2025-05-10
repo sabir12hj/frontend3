@@ -38,7 +38,7 @@ type QuizFormValues = z.infer<typeof quizSchema>;
 
 const CreateQuiz = () => {
   const { id } = useParams();
-  const tournamentId = parseInt(id);
+  const tournamentId = parseInt(id || "0", 10);
   const { requireAdmin } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -85,7 +85,7 @@ const CreateQuiz = () => {
   
   // Set default quiz title when tournament data is loaded
   useEffect(() => {
-    if (tournament) {
+    if (tournament && typeof tournament === "object" && "name" in tournament) {
       form.setValue("title", `Quiz for ${tournament.name}`);
     }
   }, [tournament, form]);
