@@ -1,3 +1,4 @@
+
 // Local fallback types replacing @shared/schema
 
 export interface Question {
@@ -13,18 +14,6 @@ export interface QuizQuestion {
   options: string[];
   correctOptionIndex: number;
   timer: number;
-}
-
-export interface QuizQuestionResponse {
-  questionId: string;
-  answerIndex: number;
-  timeTaken: number;
-}
-
-export interface QuizResults {
-  score: number;
-  totalQuestions: number;
-  timeTaken: number;
 }
 
 export interface Quiz {

@@ -1,21 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
-import { useQuery } from "@  // Start the quiz
-  const startQuiz = () => {
-    if (!quizData?.questions?.length) {
-      setQuizState((prev) => ({ ...prev, status: "error" }));
-      return;
-    }
-
-    setQuizState((prev) => ({
-      ...prev,
-      status: "question",
-      currentQuestionIndex: 0,
-      selectedAnswer: null,
-      timeLeft: quizData.questions[0].timer,
-      score: 0,
-      userResponses: [],
-    }));uery";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -439,3 +424,4 @@ const Quiz = () => {
 };
 
 export default Quiz;
+}export default Quiz;
