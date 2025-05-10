@@ -10,13 +10,13 @@ const Tournaments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   
   // Get all tournaments
-  const { data: allTournaments, isLoading: isLoadingAll } = useQuery({
+  const { data: allTournaments = [], isLoading: isLoadingAll } = useQuery<Tournament[]>({
     queryKey: ["/api/tournaments"],
     staleTime: 60000, // 1 minute
   });
 
   // Get live tournaments
-  const { data: liveTournaments, isLoading: isLoadingLive } = useQuery({
+  const { data: liveTournaments = [], isLoading: isLoadingLive } = useQuery<Tournament[]>({
     queryKey: ["/api/tournaments/live"],
     staleTime: 60000, // 1 minute
   });

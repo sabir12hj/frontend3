@@ -5,7 +5,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const RecentWinners = () => {
-  const { data: winners, isLoading } = useQuery({
+  interface Winner {
+    id: string;
+    name: string;
+    tournament: string;
+    prize: number;
+    position: number;
+  }
+
+  const { data: winners = [], isLoading } = useQuery<Winner[]>({
     queryKey: ["/api/winners/recent"],
     staleTime: 60000, // 1 minute
   });

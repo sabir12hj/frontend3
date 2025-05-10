@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 
 // Keeps track of quiz state
+import { Quiz, QuizQuestion } from '@/types';
+
 interface QuizState {
   status: "loading" | "ready" | "question" | "completed" | "error";
   currentQuestionIndex: number;
@@ -18,7 +20,7 @@ interface QuizState {
   timeLeft: number;
   score: number;
   userResponses: Array<{
-    questionId: number;
+    questionId: string;
     answerIndex: number;
     timeTaken: number;
   }>;
@@ -31,7 +33,19 @@ interface QuizState {
 
 const Quiz = () => {
   const { id } = useParams();
+  
+  // Validate id parameter
+  if (!id) {
+    return <div>Invalid quiz ID</div>;
+  }
+  
   const tournamentId = parseInt(id);
+  
+  // Validate parsed tournament ID
+  if (isNaN(tournamentId)) {
+    return <div>Invalid quiz ID format</div>;
+  }
+
   const [, navigate] = useLocation();
   const { user, requireAuth } = useAuth();
   const { toast } = useToast();

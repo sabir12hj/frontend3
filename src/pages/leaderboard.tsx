@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Tournament } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable } from "@/components/ui/data-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,13 +13,23 @@ const Leaderboard = () => {
   const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
 
   // Get all tournaments for dropdown
-  const { data: tournaments, isLoading: isLoadingTournaments } = useQuery({
+  const { data: tournaments = [], isLoading: isLoadingTournaments } = useQuery<Tournament[]>({
     queryKey: ["/api/tournaments"],
     staleTime: 60000, // 1 minute
   });
 
+  interface Winner {
+    id: string;
+    username: string;
+    tournament: string;
+    score: number;
+    position: number;
+    prize: number;
+    timeTaken: number;
+  }
+
   // Get recent winners
-  const { data: recentWinners, isLoading: isLoadingWinners } = useQuery({
+  const { data: recentWinners = [], isLoading: isLoadingWinners } = useQuery<Winner[]>({
     queryKey: ["/api/winners/recent"],
     staleTime: 60000, // 1 minute
   });

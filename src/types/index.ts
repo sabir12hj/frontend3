@@ -8,15 +8,33 @@ export interface Question {
   correctOptionIndex: number;
 }
 
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctOptionIndex: number;
+  timer: number;
+}
+
 export interface Quiz {
   id: string;
   title: string;
-  questions: Question[];
+  questions: QuizQuestion[];
+  totalQuestions: number;
 }
 
 export interface Tournament {
   id: string;
   name: string;
+  description: string;
+  startTime: Date;
+  endTime: Date;
+  entryFee: number;
+  prizePool: number;
+  totalSlots: number;
+  isPublished: boolean;
+  resultPublished: boolean;
+  participants: Participant[];
   quizzes: Quiz[];
 }
 
@@ -40,6 +58,9 @@ export interface UserResponse {
 export interface User {
   id: string;
   username: string;
+  email: string;
+  isAdmin: boolean;
+  wallet: number;
   fullName: string | null;
   mobileNumber: string | null;
   accountNumber: string | null;

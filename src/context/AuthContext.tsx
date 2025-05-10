@@ -12,6 +12,7 @@ interface AuthContextType {
   register: (username: string, email: string, password: string) => Promise<boolean>;
   googleLogin: (googleId: string, email: string, username: string) => Promise<boolean>;
   logout: () => void;
+  requireAuth: (redirectTo?: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({

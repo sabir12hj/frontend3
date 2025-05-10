@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { Tournament } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Countdown } from "@/components/ui/countdown";
@@ -10,11 +11,19 @@ import { format } from "date-fns";
 
 const TournamentDetail = () => {
   const { id } = useParams();
+  if (!id) {
+    return <div>Invalid tournament ID</div>;
+  }
+  
   const tournamentId = parseInt(id);
+  if (isNaN(tournamentId)) {
+    return <div>Invalid tournament ID format</div>;
+  }
+  
   const { user } = useAuth();
 
   // Fetch tournament details
-  const { data: tournament, isLoading: isLoadingTournament } = useQuery({
+  const { data: tournament = {} as Tournament, isLoading: isLoadingTournament } = useQuery<Tournament>({
     queryKey: [`/api/tournaments/${tournamentId}`],
     staleTime: 30000, // 30 seconds
   });

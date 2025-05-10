@@ -12,9 +12,19 @@ import { Separator } from "@/components/ui/separator";
 import { AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 
+import { Tournament } from "@/types";
+
 const TournamentPayment = () => {
   const { id } = useParams();
+  if (!id) {
+    return <div>Invalid tournament ID</div>;
+  }
+  
   const tournamentId = parseInt(id);
+  if (isNaN(tournamentId)) {
+    return <div>Invalid tournament ID format</div>;
+  }
+  
   const [, navigate] = useLocation();
   const { user, requireAuth } = useAuth();
   const { joinTournament, isProcessing } = usePayment();
