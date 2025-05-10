@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
+import { Tournament } from "@/types";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,7 +51,7 @@ const CreateQuiz = () => {
   }, [requireAdmin]);
   
   // Fetch tournament data
-  const { data: tournament, isLoading: isLoadingTournament } = useQuery({
+  const { data: tournament = {} as Tournament, isLoading: isLoadingTournament } = useQuery<Tournament>({
     queryKey: [`/api/tournaments/${tournamentId}`],
     staleTime: 30000, // 30 seconds
   });

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
+import { Quiz, QuizQuestion, Tournament } from "@/types";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,20 +55,20 @@ const EditQuiz = () => {
   }, [requireAdmin]);
   
   // Fetch tournament data
-  const { data: tournament, isLoading: isLoadingTournament } = useQuery({
+  const { data: tournament = {} as Tournament, isLoading: isLoadingTournament } = useQuery<Tournament>({
     queryKey: [`/api/tournaments/${tournamentId}`],
     staleTime: 30000, // 30 seconds
   });
   
   // Fetch quiz data
-  const { data: quiz, isLoading: isLoadingQuiz } = useQuery({
+  const { data: quiz = {} as Quiz, isLoading: isLoadingQuiz } = useQuery<Quiz>({
     queryKey: [`/api/tournaments/${tournamentId}/quiz`],
     staleTime: 30000, // 30 seconds
     enabled: !!tournamentId,
   });
   
   // Fetch questions data
-  const { data: questions, isLoading: isLoadingQuestions } = useQuery({
+  const { data: questions = [] as QuizQuestion[], isLoading: isLoadingQuestions } = useQuery<QuizQuestion[]>({
     queryKey: [`/api/admin/quizzes/${quiz?.id}/questions`],
     staleTime: 30000, // 30 seconds
     enabled: !!quiz?.id,
