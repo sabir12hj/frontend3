@@ -52,18 +52,18 @@ const TournamentPayment = () => {
     enabled: !!user,
   });
 
-  // Check if tournament is valid for payment
-  const isValidTournament = tournament?.startTime && (
+  // Fix type issues in tournament validation
+  const isValidTournament = tournament?.startTime && tournament?.endTime && (
     new Date(tournament.startTime) > new Date() || // Upcoming tournament
     (new Date(tournament.startTime) <= new Date() && new Date(tournament.endTime) >= new Date()) // Live tournament
   );
 
-  // Check if user has enough balance for wallet payment
+  // Fix wallet balance check
   const hasEnoughBalance = user && walletData?.wallet && tournament?.entryFee && 
     parseFloat(walletData.wallet) >= parseFloat(tournament.entryFee);
 
-  // Format date and time
-  const formatDateTime = (date: Date) => {
+  // Fix date formatting
+  const formatDateTime = (date: Date | string | undefined) => {
     if (!date) return "";
     return format(new Date(date), "PPP 'at' p");
   };
@@ -130,11 +130,11 @@ const TournamentPayment = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Name:</span>
-                <span className="font-medium">{tournament.name}</span>
+                <span className="font-medium">{tournament?.name || 'Unknown Tournament'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Date:</span>
-                <span className="font-medium">{tournament.startTime ? formatDateTime(tournament.startTime) : ''}</span>
+                <span className="font-medium">{tournament?.startTime ? formatDateTime(tournament.startTime) : 'TBD'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Questions:</span>
@@ -146,7 +146,7 @@ const TournamentPayment = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Prize Pool:</span>
-                <span className="font-bold text-accent">₹{parseFloat(tournament.prizePool).toLocaleString()}</span>
+                <span className="font-bold text-accent">₹{tournament?.prizePool ? parseFloat(tournament.prizePool).toLocaleString() : '0'}</span>
               </div>
             </div>
           </CardContent>

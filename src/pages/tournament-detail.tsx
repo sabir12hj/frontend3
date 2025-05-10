@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { Tournament } from "@/types";
+import { Tournament, TournamentParticipant } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Countdown } from "@/components/ui/countdown";
@@ -28,11 +28,6 @@ const TournamentDetail = () => {
     staleTime: 30000, // 30 seconds
   });
 
-  interface TournamentParticipant {
-    userId: number;
-    paymentStatus: string;
-  }
-
   // Fetch participants
   const { data: participants = [] } = useQuery<TournamentParticipant[]>({
     queryKey: [`/api/tournaments/${tournamentId}/participants`],
@@ -40,23 +35,29 @@ const TournamentDetail = () => {
     enabled: !!tournamentId,
   });
 
-  // Check if user has joined this tournament
+  // Fix type issues in participants check
   const hasJoined = participants.some((participant) => 
-    participant.userId === user?.id && participant.paymentStatus === "completed"
+    participant.userId === parseInt(user?.id || "0") && participant.paymentStatus === "completed"
   );
 
-  // Check if the tournament is active
-  const isLive = tournament && new Date(tournament.startTime) <= new Date() && new Date(tournament.endTime) >= new Date();
-  const isUpcoming = tournament && new Date(tournament.startTime) > new Date();
-  const isEnded = tournament && new Date(tournament.endTime) < new Date();
+  // Fix date handling
+  const isLive = tournament && tournament.startTime && tournament.endTime && 
+    new Date(tournament.startTime) <= new Date() && 
+    new Date(tournament.endTime) >= new Date();
+
+  const isUpcoming = tournament && tournament.startTime && 
+    new Date(tournament.startTime) > new Date();
+
+  const isEnded = tournament && tournament.endTime && 
+    new Date(tournament.endTime) < new Date();
 
   // Check if user can attempt quiz (tournament is active and user has joined)
   const canAttemptQuiz = isLive && hasJoined;
 
-  // Format dates and times
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return format(date, "PPP 'at' p");
+  // Fix date formatting
+  const formatDateTime = (date: Date | string) => {
+    if (!date) return "";
+    return format(new Date(date), "PPP 'at' p");
   };
 
   if (isLoadingTournament) {

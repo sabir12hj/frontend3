@@ -1,4 +1,3 @@
-
 // Local fallback types replacing @shared/schema
 
 export interface Question {
@@ -14,6 +13,7 @@ export interface QuizQuestion {
   options: string[];
   correctOptionIndex: number;
   timer: number;
+  correctAnswer?: number; // Added for admin edit form
 }
 
 export interface Quiz {
@@ -27,8 +27,8 @@ export interface Tournament {
   id: number;
   name: string;
   description: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: Date | string;
+  endTime: Date | string;
   entryFee: string;
   prizePool: string;
   totalSlots: number;
@@ -38,21 +38,29 @@ export interface Tournament {
   quizzes?: Quiz[];
 }
 
+export interface TournamentParticipant {
+  userId: number;
+  paymentStatus: 'pending' | 'completed' | 'failed';
+}
+
 export interface Participant {
   id: string;
+  userId: number;
   name: string;
   score: number;
+  paymentStatus: 'pending' | 'completed' | 'failed';
 }
 
 export interface Payment {
   id: string;
   amount: number;
-  status: string;
+  status: 'pending' | 'completed' | 'failed';
 }
 
 export interface UserResponse {
   questionId: string;
   selectedOptionIndex: number;
+  timeTaken: number;
 }
 
 export interface User {
@@ -60,7 +68,7 @@ export interface User {
   username: string;
   email: string;
   isAdmin: boolean;
-  wallet: number;
+  wallet: string;
   fullName: string | null;
   mobileNumber: string | null;
   accountNumber: string | null;
@@ -68,4 +76,26 @@ export interface User {
   upiId: string | null;
   profilePhoto: string | null;
   telegramId: string | null;
+}
+
+export interface Winner {
+  id: string;
+  username: string;
+  tournament: string;
+  score: number;
+  position: number;
+  prize: number;
+  timeTaken: number;
+}
+
+export interface LeaderboardPlayer {
+  rank: number;
+  username: string;
+  score: number;
+  timeTaken: number;
+  prize: string;
+}
+
+export interface TournamentLeaderboard {
+  players: LeaderboardPlayer[];
 }

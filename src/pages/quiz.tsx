@@ -13,6 +13,7 @@ import { queryClient } from "@/lib/queryClient";
 // Keeps track of quiz state
 import type { Quiz, QuizQuestion } from '@/types';
 
+// Define QuizState interface
 interface QuizState {
   status: "loading" | "ready" | "question" | "completed" | "error";
   currentQuestionIndex: number;
@@ -73,11 +74,6 @@ const Quiz = () => {
     retry: false,
     enabled: !!user,
   });
-
-  // Type guard to check if quiz has valid questions
-  const hasValidQuestions = (quiz: Quiz | undefined): quiz is Quiz & { questions: QuizQuestion[] } => {
-    return !!quiz && Array.isArray(quiz.questions) && quiz.questions.length > 0;
-  };
 
   // Type guard to check if quiz has valid questions
   const hasValidQuestions = (quiz: Quiz | undefined): quiz is Quiz & { questions: QuizQuestion[] } => {
@@ -151,7 +147,7 @@ const Quiz = () => {
   const submitAnswer = async () => {
     if (
       quizState.status !== "question" ||
-      !quizData?.questions?.length ||
+      !hasValidQuestions(quizData) ||
       quizState.currentQuestionIndex >= quizData.questions.length
     ) {
       return;
@@ -159,7 +155,7 @@ const Quiz = () => {
 
     const currentQuestion = quizData.questions[quizState.currentQuestionIndex];
     const answerIndex = quizState.selectedAnswer ?? -1; // -1 for no answer
-    const timeTaken = (currentQuestion?.timer ?? 30) - quizState.timeLeft;
+    const timeTaken = currentQuestion.timer - quizState.timeLeft;
 
     try {
       // Record the user's response
@@ -177,7 +173,7 @@ const Quiz = () => {
 
       // Submit answer to the server if one was selected
       if (answerIndex !== -1) {
-        const response = await apiRequest("POST", `/api/tournaments/${tournamentId}/submit-answer`, {
+        await apiRequest("POST", `/api/tournaments/${tournamentId}/submit-answer`, {
           questionId: currentQuestion.id,
           answerIndex: answerIndex,
           timeTaken: timeTaken,

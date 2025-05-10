@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Tournament } from "@/types";
+import { Tournament, Winner, LeaderboardPlayer, TournamentLeaderboard } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable } from "@/components/ui/data-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,33 +18,23 @@ const Leaderboard = () => {
     staleTime: 60000, // 1 minute
   });
 
-  interface Winner {
-    id: string;
-    username: string;
-    tournament: string;
-    score: number;
-    position: number;
-    prize: number;
-    timeTaken: number;
-  }
-
   // Get recent winners
   const { data: recentWinners = [], isLoading: isLoadingWinners } = useQuery<Winner[]>({
     queryKey: ["/api/winners/recent"],
     staleTime: 60000, // 1 minute
   });
 
-  // Get tournament-specific leaderboard
-  const { data: tournamentLeaderboard, isLoading: isLoadingTournamentLeaderboard } = useQuery({
+  // Get tournament leaderboard
+  const { data: tournamentLeaderboard = { players: [] }, isLoading: isLoadingTournamentLeaderboard } = useQuery<TournamentLeaderboard>({
     queryKey: [`/api/tournaments/${selectedTournamentId}/leaderboard`],
     staleTime: 60000, // 1 minute
     enabled: !!selectedTournamentId,
   });
 
-  // Get current tournament name
+  // Fix tournament name getter
   const getCurrentTournamentName = () => {
     if (!selectedTournamentId || !tournaments) return "Select a Tournament";
-    const tournament = tournaments.find((t: any) => t.id === selectedTournamentId);
+    const tournament = tournaments.find((t: Tournament) => t.id === selectedTournamentId);
     return tournament ? tournament.name : "Tournament";
   };
 
@@ -53,16 +43,17 @@ const Leaderboard = () => {
     {
       header: "Rank",
       accessorKey: "rank",
-      cell: (winner: any) => {
+      cell: ({ row }: { row: { original: Winner } }) => {
+        const winner = row.original;
         let badgeClass = "bg-gray-200 text-gray-800";
-        if (winner.rank === 1) badgeClass = "bg-primary text-white";
-        if (winner.rank === 2) badgeClass = "bg-secondary text-white";
-        if (winner.rank === 3) badgeClass = "bg-accent text-white";
+        if (winner.position === 1) badgeClass = "bg-primary text-white";
+        if (winner.position === 2) badgeClass = "bg-secondary text-white";
+        if (winner.position === 3) badgeClass = "bg-accent text-white";
         
         return (
           <div className="flex justify-center items-center">
             <div className={`${badgeClass} rounded-full w-8 h-8 flex items-center justify-center font-bold`}>
-              {winner.rank}
+              {winner.position}
             </div>
           </div>
         );
@@ -232,7 +223,7 @@ const Leaderboard = () => {
                     {isLoadingTournaments ? (
                       <option disabled>Loading tournaments...</option>
                     ) : tournaments && tournaments.length > 0 ? (
-                      tournaments.map((tournament: any) => (
+                      tournaments.map((tournament: Tournament) => (
                         <option key={tournament.id} value={tournament.id}>
                           {tournament.name}
                         </option>
@@ -246,7 +237,7 @@ const Leaderboard = () => {
               
               {selectedTournamentId ? (
                 <DataTable
-                  data={tournamentLeaderboard || []}
+                  data={tournamentLeaderboard.players || []}
                   columns={tournamentLeaderboardColumns}
                   isLoading={isLoadingTournamentLeaderboard}
                   searchable={true}
